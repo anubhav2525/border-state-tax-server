@@ -1,0 +1,154 @@
+# ============================================================
+#  application-prod.yml  —  Production Profile
+#  Activate with: SPRING_PROFILES_ACTIVE=prod
+#  ALL secrets MUST be injected via environment variables.
+#  Never hardcode credentials in this file.
+# ============================================================
+
+# ----- Server -------------------------------------------------
+server:
+  port: ${PORT:8443}
+  ssl:
+    enabled: ${SSL_ENABLED:false}        # set true when terminating TLS at app level
+    key-store: ${SSL_KEY_STORE:}
+    key-store-password: ${SSL_KEY_STORE_PASSWORD:}
+    key-store-type: PKCS12
+  compression:
+    enabled: true
+  http2:
+    enabled: true
+  error:
+    include-message: never
+    include-binding-errors: never
+    include-stacktrace: never
+
+spring:
+  # ----- Datasource -------------------------------------------
+  datasource:
+    url: ${DB_URL}                    # jdbc:postgresql://prod-host:5432/crm_prod
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      pool-name: CrmHikariPool-Prod
+      minimum-idle: 5
+      maximum-pool-size: 20
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      leak-detection-threshold: 60000  # warn on connections held > 60s
+
+  # ----- JPA --------------------------------------------------
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: false
+        use_sql_comments: false
+        jdbc:
+          batch_size: 50             # higher throughput in prod
+
+  # ----- Flyway -----------------------------------------------
+  flyway:
+    clean-disabled: true             # NEVER allow clean in prod
+    validate-on-migrate: true
+    out-of-order: false
+    baseline-version: 1
+
+  # ----- Kafka ------------------------------------------------
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+    producer:
+      acks: all
+      retries: 5
+      properties:
+        enable.idempotence: true
+        compression.type: snappy
+    consumer:
+      properties:
+        fetch.min.bytes: 1024
+        fetch.max.wait.ms: 500
+    ssl:
+      trust-store-location: ${KAFKA_SSL_TRUSTSTORE_LOCATION:}
+      trust-store-password: ${KAFKA_SSL_TRUSTSTORE_PASSWORD:}
+      key-store-location: ${KAFKA_SSL_KEYSTORE_LOCATION:}
+      key-store-password: ${KAFKA_SSL_KEYSTORE_PASSWORD:}
+    security:
+      protocol: ${KAFKA_SECURITY_PROTOCOL:PLAINTEXT}  # set SASL_SSL in prod
+
+  # ----- Mail -------------------------------------------------
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+
+  # ----- Thymeleaf --------------------------------------------
+  thymeleaf:
+    cache: true
+
+  # ----- Security ---------------------------------------------
+  security:
+    require-ssl: true
+
+# ----- Actuator (restrict exposure in prod) -------------------
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when-authorized
+      show-components: when-authorized
+  metrics:
+    export:
+      prometheus:
+        enabled: true              # scrape with Prometheus/Grafana
+
+# ----- Logging ------------------------------------------------
+logging:
+  level:
+    root: WARN
+    com.crm.server: INFO
+    org.springframework.security: WARN
+    org.flywaydb: INFO
+  file:
+    name: /var/log/crm/application.log
+  logback:
+    rollingpolicy:
+      file-name-pattern: /var/log/crm/application.%d{yyyy-MM-dd}.%i.log.gz
+      max-file-size: 50MB
+      max-history: 30
+      total-size-cap: 2GB
+  pattern:
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger{36} - %msg%n"
+
+
+# ----- SpringDoc (disabled in prod) ---------------------------
+springdoc:
+  swagger-ui:
+    enabled: false
+  api-docs:
+    enabled: false
+
+# ----- App custom ---------------------------------------------
+app:
+  jwt:
+    secret: ${JWT_SECRET}               # min 32-char random string via env
+    access-token-expiry-ms: 900000      # 15 min — strict in prod
+    refresh-token-expiry-ms: 604800000  # 7 days
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS}   # e.g. https://app.crm.com
+  mail:
+    from: ${MAIL_FROM}
+    base-url: ${APP_BASE_URL}           # https://api.crm.com

@@ -1,0 +1,108 @@
+# ============================================================
+#  application-dev.yml  —  Development Profile
+#  Activate with: SPRING_PROFILES_ACTIVE=dev
+#  All values here OVERRIDE application.yml
+# ============================================================
+
+# ----- Server -------------------------------------------------
+server:
+  port: ${PORT:8080}
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: on-param       # ?trace=true in request
+
+spring:
+  # ----- Datasource -------------------------------------------
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  # ----- JPA --------------------------------------------------
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: none            # Flyway owns DDL; Hibernate only validates
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+
+  # ----- Flyway -----------------------------------------------
+  flyway:
+    clean-on-validation-error: true  # handy for wiping and re-migrating locally
+    clean-disabled: false
+    baseline-version: 0
+
+  # ----- Kafka ------------------------------------------------
+  kafka:
+    bootstrap-servers: localhost:9092
+
+  # ----- Mail (MailHog / Mailtrap for local) ------------------
+  mail:
+    host: localhost
+    port: 1025
+    username: ""
+    password: ""
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+
+  # ----- Thymeleaf (disable cache for hot-reload) -------------
+  thymeleaf:
+    cache: false
+
+  # ----- DevTools ---------------------------------------------
+  devtools:
+    restart:
+      enabled: true
+    livereload:
+      enabled: true
+
+# ----- Actuator (expose everything locally) -------------------
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
+
+# ----- Logging ------------------------------------------------
+logging:
+  level:
+    root: INFO
+    com.crm.server: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.kafka: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE    # prints bind parameters
+    org.flywaydb: DEBUG
+  pattern:
+    console: "%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n%wEx"
+
+# ----- SpringDoc (always visible in dev) ----------------------
+springdoc:
+  swagger-ui:
+    enabled: true
+  api-docs:
+    enabled: true
+
+# ----- App custom ---------------------------------------------
+app:
+  jwt:
+    secret: dev-secret-key-minimum-256-bits-long-for-hs256-algorithm
+    access-token-expiry-ms: 3600000    # 1 hour (longer for easier dev testing)
+    refresh-token-expiry-ms: 86400000  # 1 day
+  cors:
+    allowed-origins: "http://localhost:3000,http://localhost:5173,http://localhost:4200"
+  mail:
+    from: dev@crm.local
+    base-url: http://localhost:8080/api

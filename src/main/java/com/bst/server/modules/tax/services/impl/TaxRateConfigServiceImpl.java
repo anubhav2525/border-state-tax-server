@@ -533,6 +533,8 @@ public class TaxRateConfigServiceImpl implements TaxRateConfigService {
                 ? taxRateConfigRepository.findAllByEnabledTrueAndDeletedFalseAndTaxType(taxType)
                 : taxRateConfigRepository.findAllByEnabledTrueAndDeletedFalse();
 
+        if (records.isEmpty()) throw new ResourceNotExistsException(RESOURCE + " not found");
+
         List<TaxRateConfigResponse.Summary> data = records.stream()
                 .map(this::buildSummary)
                 .toList();

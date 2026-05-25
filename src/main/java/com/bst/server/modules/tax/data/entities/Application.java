@@ -6,7 +6,9 @@ import com.bst.server.modules.tax.data.enums.TaxModeEnum;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -18,6 +20,7 @@ import java.util.UUID;
         name = "applications",
         indexes = {
                 @Index(name = "idx_app_status", columnList = "status"),
+                @Index(name = "idx_app_vehicle_no", columnList = "vehicle_no"),
                 @Index(name = "idx_app_dates", columnList = "start_date, end_date")
         }
 )
@@ -40,7 +43,14 @@ public class Application {
     @Column(name = "vehicle_seating", nullable = false, length = 30)
     private String vehicleSeating;
 
+    @Column(name = "vehicle_no", nullable = false, length = 10)
+    private String vehicleNumber;
+
+    @Column(name = "phone_no", nullable = false, length = 10)
+    private String phoneNumber;
+
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "tax_type", nullable = false, columnDefinition = "tax_mode_enum")
     private TaxModeEnum taxType;
 

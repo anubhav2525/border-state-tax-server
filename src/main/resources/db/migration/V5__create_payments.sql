@@ -6,8 +6,11 @@ CREATE TABLE applications
     id                 UUID PRIMARY KEY           DEFAULT gen_random_uuid(),
 
     -- Rate matrix selection
-    state_name         VARCHAR(30)       NOT NULL UNIQUE,
-    vehicle_seating    VARCHAR(30)       NOT NULL UNIQUE,
+    state_name         VARCHAR(30)       NOT NULL,
+    vehicle_seating    VARCHAR(30)       NOT NULL,
+    vehicle_no         VARCHAR(20)       NOT NULL,
+    phone_no           VARCHAR(15)       NOT NULL,
+
     tax_type           tax_mode_enum     NOT NULL,
     tax_rate_config_id UUID              NOT NULL REFERENCES tax_rate_configs (id), -- LOCKED at submission
 
@@ -35,6 +38,7 @@ CREATE TABLE applications
 
 CREATE INDEX idx_app_id ON applications (id);
 CREATE INDEX idx_app_status ON applications (status);
+CREATE INDEX idx_app_vehicle_no ON applications (vehicle_no);
 CREATE INDEX idx_app_dates ON applications (start_date, end_date);
 
 -- ----------------------------
@@ -44,19 +48,28 @@ CREATE TABLE payments
 (
     id                 UUID PRIMARY KEY         DEFAULT gen_random_uuid(),
     application_id     UUID            NOT NULL REFERENCES applications (id),
+
     payment_reference  VARCHAR(50)     NOT NULL UNIQUE, -- internal ref
+
     gateway_order_id   VARCHAR(100) UNIQUE,             -- Razorpay order_id
     gateway_payment_id VARCHAR(100) UNIQUE,             -- Razorpay payment_id
+    gateway_signature  VARCHAR(255),                    -- HMAC-SHA256 for verification
+
     amount             NUMERIC(12, 2)  NOT NULL,
     payment_method     VARCHAR(30),                     -- UPI, CARD, NETBANKING
     status             pay_status_enum NOT NULL DEFAULT 'PENDING',
     failure_reason     TEXT,
     paid_at            TIMESTAMP,
+
     created_at         TIMESTAMP       NOT NULL DEFAULT NOW(),
     updated_at         TIMESTAMP       NOT NULL DEFAULT NOW()
 );
 
 CREATE INDEX idx_payment_app ON payments (application_id);
+-- Ek application ke against sirf ek SUCCESS payment allowed
+CREATE UNIQUE INDEX idx_one_success_per_app
+    ON payments (application_id)
+    WHERE status = 'SUCCESS';
 
 -- ----------------------------
 -- 3. TAX CERTIFICATES

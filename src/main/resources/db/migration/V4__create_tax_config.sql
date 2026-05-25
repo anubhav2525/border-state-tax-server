@@ -4,8 +4,8 @@
 CREATE TABLE tax_rate_configs
 (
     id                   UUID PRIMARY KEY        DEFAULT gen_random_uuid(),
-    state_name           VARCHAR(30)    NOT NULL UNIQUE,
-    vehicle_seating      VARCHAR(30)    NOT NULL UNIQUE,
+    state_name           VARCHAR(30)    NOT NULL,
+    vehicle_seating      VARCHAR(30)    NOT NULL,
     tax_type             tax_mode_enum  NOT NULL,
 
     -- Rates (tax + commission stored separately for reporting)
@@ -21,8 +21,8 @@ CREATE TABLE tax_rate_configs
     yearly_commission    NUMERIC(10, 2) NOT NULL DEFAULT 0,
 
     -- Validity window (for future rate revisions)
-    enabled            BOOLEAN        NOT NULL DEFAULT TRUE,
-    deleted            BOOLEAN        NOT NULL DEFAULT FALSE,
+    enabled              BOOLEAN        NOT NULL DEFAULT TRUE,
+    deleted              BOOLEAN        NOT NULL DEFAULT FALSE,
 
     created_at           TIMESTAMP      NOT NULL DEFAULT NOW(),
     updated_at           TIMESTAMP      NOT NULL DEFAULT NOW(),

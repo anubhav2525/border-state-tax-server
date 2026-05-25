@@ -43,6 +43,10 @@ public class Payment {
     @Column(name = "gateway_payment_id", unique = true, length = 100)
     private String gatewayPaymentId;
 
+    /** Razorpay gateway_signature — populated after gateway callback */
+    @Column(name = "gateway_signature", unique = true, length = 100)
+    private String gatewaySignature;
+
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal amount;
 

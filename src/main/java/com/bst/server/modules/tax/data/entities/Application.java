@@ -1,5 +1,6 @@
 package com.bst.server.modules.tax.data.entities;
 
+import com.bst.server.modules.authentication.data.entities.Users;
 import com.bst.server.modules.tax.data.enums.AppStatusEnum;
 import com.bst.server.modules.tax.data.enums.PaymentModeEnum;
 import com.bst.server.modules.tax.data.enums.TaxModeEnum;
@@ -43,10 +44,13 @@ public class Application {
     @Column(name = "vehicle_seating", nullable = false, length = 30)
     private String vehicleSeating;
 
-    @Column(name = "vehicle_no", nullable = false, length = 10)
+    @Column(name = "vehicle_no", nullable = false, length = 20)
     private String vehicleNumber;
 
-    @Column(name = "phone_no", nullable = false, length = 10)
+    @Column(name = "chassis_no", length = 20)
+    private String chassisNumber;
+
+    @Column(name = "phone_no", nullable = false, length = 15)
     private String phoneNumber;
 
     @Enumerated(EnumType.STRING)
@@ -64,6 +68,7 @@ public class Application {
 
     // ── Payment period ─────────────────────────────
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "payment_mode", nullable = false, columnDefinition = "payment_mode_enum")
     private PaymentModeEnum paymentMode;
 
@@ -91,9 +96,21 @@ public class Application {
 
     // ── Lifecycle ──────────────────────────────────
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "status", nullable = false, columnDefinition = "app_status_enum")
     @Builder.Default
     private AppStatusEnum status = AppStatusEnum.DRAFT;
+
+    @Builder.Default
+    @Column(name = "is_read", nullable = false)
+    private Boolean isRead = false;
+
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "users_id", nullable = false)
+    private Users handledBy;
+
+    @Column(columnDefinition = "TEXT", name = "refund_reason")
+    private String refundReason;
 
     @Column(name = "submitted_at")
     private LocalDateTime submittedAt;

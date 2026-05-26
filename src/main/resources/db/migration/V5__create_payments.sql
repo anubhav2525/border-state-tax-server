@@ -9,6 +9,7 @@ CREATE TABLE applications
     state_name         VARCHAR(30)       NOT NULL,
     vehicle_seating    VARCHAR(30)       NOT NULL,
     vehicle_no         VARCHAR(20)       NOT NULL,
+    chassis_no         VARCHAR(20)       NOT NULL,
     phone_no           VARCHAR(15)       NOT NULL,
 
     tax_type           tax_mode_enum     NOT NULL,
@@ -27,6 +28,10 @@ CREATE TABLE applications
 
     -- Lifecycle
     status             app_status_enum   NOT NULL DEFAULT 'DRAFT',
+    refund_reason      VARCHAR           NOT NULL,
+    handled_by         UUID              NOT NULL REFERENCES users (id),
+    is_read            BOOLEAN           NOT NULL DEFAULT FALSE,
+
     submitted_at       TIMESTAMP,
     created_at         TIMESTAMP         NOT NULL DEFAULT NOW(),
     updated_at         TIMESTAMP         NOT NULL DEFAULT NOW(),
@@ -68,8 +73,7 @@ CREATE TABLE payments
 CREATE INDEX idx_payment_app ON payments (application_id);
 -- Ek application ke against sirf ek SUCCESS payment allowed
 CREATE UNIQUE INDEX idx_one_success_per_app
-    ON payments (application_id)
-    WHERE status = 'SUCCESS';
+    ON payments (application_id) WHERE status = 'SUCCESS';
 
 -- ----------------------------
 -- 3. TAX CERTIFICATES

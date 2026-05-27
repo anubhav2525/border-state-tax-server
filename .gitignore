@@ -35,3 +35,9 @@ build/
 ### Env ###
 .env.dev
 .env.prod
+src/main/java/com/bst/server/modules/authentication/security/DatabaseUserDetailsService.java
+src/main/java/com/bst/server/modules/authentication/security/JwtAuthenticationFilter.java
+src/main/java/com/bst/server/modules/authentication/security/JwtService.java
+src/main/java/com/bst/server/modules/authentication/security/UserPrincipal.java
+src/main/java/com/bst/server/modules/authentication/security/WebSecurityConfig.java
+src/main/java/com/bst/server/modules/authentication/security/WebSecurityConfig.java

@@ -8,6 +8,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -185,6 +187,20 @@ public class GlobalExceptionHandler {
             ResourceOperationNotAllowed ex,
             WebRequest request) {
         return createResponseEntity.buildExceptionResponse(ex.getMessage(), handler, request, HttpStatus.METHOD_NOT_ALLOWED);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<CustomResponse<Void>> handleAccessDenied(
+            AccessDeniedException ex,
+            WebRequest request) {
+        return createResponseEntity.buildExceptionResponse("Access denied", handler, request, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<CustomResponse<Void>> handleAuthentication(
+            AuthenticationException ex,
+            WebRequest request) {
+        return createResponseEntity.buildExceptionResponse("Authentication required", handler, request, HttpStatus.UNAUTHORIZED);
     }
 
     // catch 500 status code

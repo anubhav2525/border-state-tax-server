@@ -34,6 +34,8 @@ public interface PermissionRepository extends JpaRepository<Permissions, UUID> {
             String action
     );
 
+    List<Permissions> findAllDeletedFalse();
+
     // =========================================================
     // PAGINATION
     // =========================================================

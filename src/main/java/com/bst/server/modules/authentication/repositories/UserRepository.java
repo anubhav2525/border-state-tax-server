@@ -22,7 +22,11 @@ public interface UserRepository extends JpaRepository<Users, UUID>,
 
     Optional<Users> findByEmailAndDeletedFalse(String email);
 
+    Optional<Users> findByPhoneAndDeletedFalse(String phone);
+
     boolean existsByEmailAndDeletedFalse(String email);
+
+    boolean existsByPhoneAndDeletedFalse(String phone);
 
     // =========================================================
     // SECURITY FETCH

@@ -11,10 +11,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
-
-import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
@@ -72,6 +71,7 @@ public class ApplicationController {
      * @param webRequest request metadata
      */
     @PostMapping("")
+    @PreAuthorize("hasAuthority('APPLICATION:CREATE')")
     public ResponseEntity<CustomResponse<ApplicationResponse.Quote>> calculateAndDraft(
             @Valid @RequestBody ApplicationRequest.Create request,
             WebRequest webRequest
@@ -87,6 +87,7 @@ public class ApplicationController {
     }
 
     @PostMapping("/health")
+    @PreAuthorize("isAuthenticated()")
     public String status() {
         return "Hello";
     }
@@ -115,6 +116,7 @@ public class ApplicationController {
      * @param id UUID of the application
      */
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('APPLICATION:READ_ALL') or hasAuthority('APPLICATION:READ_OWN')")
     public ResponseEntity<CustomResponse<ApplicationResponse.Detail>> getById(
             @PathVariable UUID id,
             WebRequest webRequest
@@ -149,6 +151,7 @@ public class ApplicationController {
      * @param id UUID of the draft application
      */
     @PatchMapping("/{id}/submit")
+    @PreAuthorize("hasAuthority('APPLICATION:UPDATE_OWN') or hasAuthority('APPLICATION:UPDATE_ANY')")
     public ResponseEntity<CustomResponse<ApplicationResponse.Detail>> submit(
             @PathVariable UUID id,
             WebRequest webRequest
@@ -182,6 +185,7 @@ public class ApplicationController {
      * @param id UUID of the application
      */
     @PatchMapping("/{id}/cancel")
+    @PreAuthorize("hasAuthority('APPLICATION:CANCEL_OWN') or hasAuthority('APPLICATION:CANCEL_ANY')")
     public ResponseEntity<CustomResponse<Void>> cancel(
             @PathVariable UUID id,
             WebRequest webRequest
@@ -216,6 +220,7 @@ public class ApplicationController {
      * @param id UUID of the application
      */
     @PatchMapping("/{id}/read")
+    @PreAuthorize("hasAuthority('APPLICATION:READ_ALL')")
     public ResponseEntity<CustomResponse<ApplicationResponse.Detail>> markAsRead(
             @PathVariable UUID id,
             WebRequest webRequest
@@ -249,6 +254,7 @@ public class ApplicationController {
      * @param id UUID of the paid application
      */
     @PatchMapping("/{id}/complete")
+    @PreAuthorize("hasAuthority('APPLICATION:UPDATE_ANY')")
     public ResponseEntity<CustomResponse<ApplicationResponse.Detail>> markAsComplete(
             @PathVariable UUID id,
             WebRequest webRequest
@@ -296,6 +302,7 @@ public class ApplicationController {
      * @param webRequest request metadata
      */
     @GetMapping("/search")
+    @PreAuthorize("hasAuthority('APPLICATION:READ_ALL') or hasAuthority('APPLICATION:READ_OWN')")
     public ResponseEntity<CustomResponse<PagedResponse<ApplicationResponse.Summary>>> search(
             @Valid @RequestParam ApplicationRequest.Search request,
             WebRequest webRequest
@@ -334,6 +341,7 @@ public class ApplicationController {
      * @param status application status filter
      */
     @GetMapping("/unread/count")
+    @PreAuthorize("hasAuthority('APPLICATION:READ_ALL')")
     public ResponseEntity<CustomResponse<Long>> countUnread(
             @RequestParam AppStatusEnum status,
             WebRequest webRequest
@@ -362,6 +370,7 @@ public class ApplicationController {
      * @param status application status enum
      */
     @GetMapping("/status/count")
+    @PreAuthorize("hasAuthority('APPLICATION:READ_ALL') or hasAuthority('REPORT:VIEW_ALL')")
     public ResponseEntity<CustomResponse<Long>> countApplicationStatus(
             @RequestParam AppStatusEnum status,
             WebRequest webRequest
@@ -397,6 +406,7 @@ public class ApplicationController {
      * @param refund refund payload
      */
     @PatchMapping("/{id}/refund")
+    @PreAuthorize("hasAuthority('PAYMENT:REFUND')")
     public ResponseEntity<CustomResponse<ApplicationResponse.Detail>> refundApplication(
             @PathVariable("id") UUID id,
             @Valid @RequestBody ApplicationRequest.Refund refund,

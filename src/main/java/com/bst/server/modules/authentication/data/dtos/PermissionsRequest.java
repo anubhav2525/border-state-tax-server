@@ -4,9 +4,6 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.UUID;
-
 @Component
 public class PermissionsRequest {
    
@@ -56,17 +53,5 @@ public class PermissionsRequest {
         @Pattern(regexp = "^(asc|desc)$", message = "Sort direction must be 'asc' or 'desc'")
         @Builder.Default
         private String sortDir = "desc";
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class BulkToggle {
-        @NotNull(message = "Permission IDs are required")
-        @Size(min = 1, message = "At least one permission ID must be provided")
-        private List<UUID> ids;
-
-        @NotNull(message = "Enabled flag is required")
-        private Boolean enabled;
     }
 }

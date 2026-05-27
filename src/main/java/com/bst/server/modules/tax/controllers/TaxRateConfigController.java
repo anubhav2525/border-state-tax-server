@@ -10,6 +10,7 @@ import com.bst.server.modules.tax.services.TaxRateConfigService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
@@ -61,6 +62,7 @@ public class TaxRateConfigController {
      * @param webRequest for response metadata (path, timestamp)
      */
     @PostMapping
+    @PreAuthorize("hasAuthority('TAX_RATE:CREATE')")
     public ResponseEntity<CustomResponse<TaxRateConfigResponse.Detail>> create(
             @Valid @RequestBody TaxRateConfigRequest.Create request,
             WebRequest webRequest
@@ -92,6 +94,7 @@ public class TaxRateConfigController {
      * @param id UUID of the tax rate config
      */
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('TAX_RATE:READ')")
     public ResponseEntity<CustomResponse<TaxRateConfigResponse.Detail>> getById(
             @PathVariable UUID id,
             WebRequest webRequest
@@ -126,6 +129,7 @@ public class TaxRateConfigController {
      * @param request partial update payload (all fields optional)
      */
     @PatchMapping("/{id}")
+    @PreAuthorize("hasAuthority('TAX_RATE:UPDATE')")
     public ResponseEntity<CustomResponse<TaxRateConfigResponse.Detail>> update(
             @PathVariable UUID id,
             @Valid @RequestBody TaxRateConfigRequest.Update request,
@@ -162,6 +166,7 @@ public class TaxRateConfigController {
      * <p>Returns: 200 OK with paginated Summary list
      */
     @GetMapping("/search")
+    @PreAuthorize("hasAuthority('TAX_RATE:READ')")
     public ResponseEntity<CustomResponse<PagedResponse<TaxRateConfigResponse.Summary>>> search(
             @Valid @RequestParam TaxRateConfigRequest.Search request,
             WebRequest webRequest
@@ -194,6 +199,7 @@ public class TaxRateConfigController {
      * @param taxType optional TaxModeEnum filter
      */
     @GetMapping("/active")
+    @PreAuthorize("hasAuthority('TAX_RATE:READ')")
     public ResponseEntity<CustomResponse<List<TaxRateConfigResponse.Summary>>> getAllActive(
             @RequestParam(required = false) TaxModeEnum taxType,
             WebRequest webRequest
@@ -223,6 +229,7 @@ public class TaxRateConfigController {
      * @param id UUID of the config to enable
      */
     @PatchMapping("/{id}/enable")
+    @PreAuthorize("hasAuthority('TAX_RATE:UPDATE')")
     public ResponseEntity<CustomResponse<TaxRateConfigResponse.Summary>> enable(
             @PathVariable UUID id,
             WebRequest webRequest
@@ -253,6 +260,7 @@ public class TaxRateConfigController {
      * @param id UUID of the config to disable
      */
     @PatchMapping("/{id}/disable")
+    @PreAuthorize("hasAuthority('TAX_RATE:UPDATE')")
     public ResponseEntity<CustomResponse<TaxRateConfigResponse.Summary>> disable(
             @PathVariable UUID id,
             WebRequest webRequest
@@ -285,6 +293,7 @@ public class TaxRateConfigController {
      * @param id UUID of the config to soft's delete
      */
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('TAX_RATE:DELETE')")
     public ResponseEntity<CustomResponse<Void>> softDelete(
             @PathVariable UUID id,
             WebRequest webRequest
@@ -316,6 +325,7 @@ public class TaxRateConfigController {
      * @param id UUID of the config to permanently delete
      */
     @DeleteMapping("/{id}/hard")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<CustomResponse<Void>> hardDelete(
             @PathVariable(name = "id") UUID id,
             WebRequest webRequest
@@ -348,6 +358,7 @@ public class TaxRateConfigController {
      * @param id UUID of the soft-deleted config to restore
      */
     @PatchMapping("/{id}/restore")
+    @PreAuthorize("hasAuthority('TAX_RATE:UPDATE')")
     public ResponseEntity<CustomResponse<TaxRateConfigResponse.Summary>> restore(
             @PathVariable(name = "id") UUID id,
             WebRequest webRequest
@@ -385,6 +396,7 @@ public class TaxRateConfigController {
      * @param request list of UUIDs to permanently delete
      */
     @DeleteMapping("/bulk/hard")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<CustomResponse<Integer>> bulkHardDelete(
             @Valid @RequestBody TaxRateConfigRequest.BulkDelete request,
             WebRequest webRequest

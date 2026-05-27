@@ -4,9 +4,12 @@ import com.bst.server.common.utils.CustomResponse;
 import com.bst.server.common.utils.PagedResponse;
 import com.bst.server.modules.authentication.data.dtos.PermissionsRequest;
 import com.bst.server.modules.authentication.data.dtos.PermissionsResponse;
+import com.bst.server.modules.authentication.data.entities.Permissions;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.context.request.WebRequest;
+import org.w3c.dom.stylesheets.LinkStyle;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface PermissionsService {
@@ -48,5 +51,9 @@ public interface PermissionsService {
      * PermissionAlreadyDisabledException
      */
     ResponseEntity<CustomResponse<PermissionsResponse.Detail>> disable(UUID id, WebRequest webRequest);
+
+    ResponseEntity<CustomResponse<Void>> softDelete(UUID id, WebRequest webRequest);
+
+    ResponseEntity<CustomResponse<List<PermissionsResponse.Summary>>> getAllActivePermissions(WebRequest webRequest);
 
 }
